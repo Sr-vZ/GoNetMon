@@ -73,12 +73,6 @@ func startSpeedTest() {
 	}
 }
 
-func checkError(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 func performSpeedTest() (SpeedTestResult, error) {
 	// Retrieve available servers
 	var speedtestClient = speedtest.New()
