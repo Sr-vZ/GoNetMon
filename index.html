@@ -1,59 +1,82 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Speed Test Results</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Speed Test Results</h1>
     <canvas id="speedChart"></canvas>
     <script>
-        fetch('/results')
-            .then(response => response.json())
-            .then(data => {
-                const labels = data.map(result => new Date(result.timestamp).toLocaleString());
-                const pingData = data.map(result => result.ping);
-                const downloadData = data.map(result => result.download);
-                const uploadData = data.map(result => result.upload);
+      let speedChart;
 
-                const ctx = document.getElementById('speedChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: 'Ping (ms)',
-                                data: pingData,
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'Download (Mbps)',
-                                data: downloadData,
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'Upload (Mbps)',
-                                data: uploadData,
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                borderWidth: 1
-                            }
-                        ]
+      function fetchDataAndUpdateChart() {
+        fetch("/results")
+          .then((response) => response.json())
+          .then((data) => {
+            const labels = data.map((result) =>
+              new Date(result.Timestamp).toLocaleString()
+            );
+            const pingData = data.map((result) => result.Ping);
+            const downloadData = data.map((result) => result.Download);
+            const uploadData = data.map((result) => result.Upload);
+            //console.log(data);
+            console.log(pingData, downloadData, uploadData);
+
+            if (!speedChart) {
+              const ctx = document
+                .getElementById("speedChart")
+                .getContext("2d");
+              speedChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                  labels: labels,
+                  datasets: [
+                    {
+                      label: "Ping (ms)",
+                      data: pingData,
+                      borderColor: "rgba(255, 99, 132, 1)",
+                      borderWidth: 1,
+                      fill: false,
                     },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        }
-                    }
-                });
-            });
+                    {
+                      label: "Download (Mbps)",
+                      data: downloadData,
+                      borderColor: "rgba(54, 162, 235, 1)",
+                      borderWidth: 1,
+                      fill: false,
+                    },
+                    {
+                      label: "Upload (Mbps)",
+                      data: uploadData,
+                      borderColor: "rgba(75, 192, 192, 1)",
+                      borderWidth: 1,
+                      fill: false,
+                    },
+                  ],
+                },
+                options: {
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                    },
+                  },
+                },
+              });
+            } else {
+              speedChart.data.labels = labels;
+              speedChart.data.datasets[0].data = pingData;
+              speedChart.data.datasets[1].data = downloadData;
+              speedChart.data.datasets[2].data = uploadData;
+              speedChart.update();
+            }
+          });
+      }
+
+      fetchDataAndUpdateChart();
+      setInterval(fetchDataAndUpdateChart, 10000); // Refresh every 10 seconds
     </script>
-</body>
+  </body>
 </html>
